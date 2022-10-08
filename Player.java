@@ -44,6 +44,15 @@ public class Player extends Component {
     public static ArrayList<Bullet> newBullets;
     public static double capExtension = Math.ceil(21/86 * length);
 
+    // Booleans
+    boolean isMovingRight;
+    boolean isMovingLeft;
+    boolean isMovingDown;
+    boolean isMovingUp;
+    boolean isMovingTurretUp;
+    boolean isMovingTurretDown;
+
+
     public Player(Integer[] playerKeys, int playerNumber, Double[] boundaries, boolean isFacingRight) {
         super("images/player" + playerNumber + "_right.png");
         pathToBulletImage = "images/player" + playerNumber + "_bullet.png";
@@ -60,7 +69,6 @@ public class Player extends Component {
         waitToShootEvent = new TimedEvent(.2);
         stunEvent = new TimedEvent(.2);
 
-//        minLeftEdge, maxLeftEdge, minTopEdge, maxTopEdge = boundaries;
         minLeftEdge = boundaries[0];
         maxLeftEdge = boundaries[1];
         minTopEdge = boundaries[2];
@@ -96,36 +104,56 @@ public class Player extends Component {
         turret.leftEdge = isFacingRight ? getRightEdge() - capExtension : leftEdge + capExtension - turret.width;
         turret.topEdge = topEdge + verticalDelta;
 
+        double playerDistance = VelocityCalculator.calculateDistance(playerVelocity);
+        double turretDistance = VelocityCalculator.calculateDistance(turretVelocity);
+
+        leftEdge += isMovingRight ? playerDistance : 0;
+        leftEdge -= isMovingLeft ? playerDistance : 0;
+
+        topEdge -= isMovingUp ? playerDistance : 0;
+        topEdge += isMovingDown ? playerDistance : 0;
+
+        leftEdge = getNewCoordinates(minLeftEdge, maxLeftEdge, leftEdge);
+        topEdge = getNewCoordinates(minTopEdge, maxTopEdge, topEdge);
+
+        verticalDelta -= isMovingUp ? turretDistance : 0;
+        verticalDelta += isMovingDown ? turretDistance : 0;
+        verticalDelta = getNewCoordinates(30 / 122 * height, height - turret.height, verticalDelta);
     }
 
     public void keyPressed(KeyEvent keyEvent) {
         if (stunEvent.hasFinished()) {
-            double playerDistance = VelocityCalculator.calculateDistance(playerVelocity);
-            double turretDistance = VelocityCalculator.calculateDistance(turretVelocity);
 
-            leftEdge += keyEvent.getKeyCode() == rightKey ? playerDistance : 0;
-            leftEdge -= keyEvent.getKeyCode() == leftKey ? playerDistance : 0;
+            isMovingRight = keyEvent.getKeyCode() == rightKey;
+            isMovingLeft = keyEvent.getKeyCode() == leftKey;
 
-            topEdge += keyEvent.getKeyCode() == downKey && keyEvent.getKeyCode() != moveTurretKey ? playerDistance : 0;
-            topEdge -= keyEvent.getKeyCode() == upKey && keyEvent.getKeyCode() != moveTurretKey ? playerDistance : 0;
+            isMovingTurretDown = keyEvent.getKeyCode() == downKey && keyEvent.getKeyCode() == moveTurretKey;
+            isMovingTurretUp = keyEvent.getKeyCode() == upKey && keyEvent.getKeyCode() == moveTurretKey;
 
-            leftEdge = getNewCoordinates(minLeftEdge, maxLeftEdge, leftEdge);
-            topEdge = getNewCoordinates(minTopEdge, maxTopEdge, topEdge);
-
-            verticalDelta -= keyEvent.getKeyCode() == downKey && keyEvent.getKeyCode() == moveTurretKey ? turretDistance : 0;
-            verticalDelta += keyEvent.getKeyCode() == upKey && keyEvent.getKeyCode() == moveTurretKey ? turretDistance : 0;
-            verticalDelta = getNewCoordinates(30 / 122 * height, height - turret.height, verticalDelta);
+            isMovingDown = keyEvent.getKeyCode() == downKey && keyEvent.getKeyCode() != moveTurretKey;
+            isMovingUp = keyEvent.getKeyCode() == upKey && keyEvent.getKeyCode() != moveTurretKey;
 
             isFacingRight = keyEvent.getKeyCode() == rightKey ? true : isFacingRight;
             isFacingRight = keyEvent.getKeyCode() == leftKey ? false : isFacingRight;
         }
-        System.out.print("x " + leftEdge + "\n ");
 
         boolean canShootBullet = waitToShootEvent.hasFinished() && stunEvent.hasFinished();
         if (canShootBullet && keyEvent.getKeyCode() == shootKey) {
             shootLaser();
             waitToShootEvent.start();
         }
+    }
+
+    public void keyReleased(KeyEvent keyEvent) {
+        isMovingRight = false;
+        isMovingLeft = false;
+
+        isMovingUp = false;
+        isMovingDown = false;
+
+        isMovingTurretUp = false;
+        isMovingTurretDown = false;
+
     }
 
     public void shootLaser() {
