@@ -41,16 +41,16 @@ public class Player extends Component {
 
     public TimedEvent stunEvent;
     public int playerNumber = 1;
-    public static ArrayList<Bullet> newBullets;
+    public ArrayList<Bullet> newBullets;
     public static double capExtension = Math.ceil(21/86 * length);
 
     // Booleans
-    boolean isMovingRight;
-    boolean isMovingLeft;
-    boolean isMovingDown;
-    boolean isMovingUp;
-    boolean isMovingTurretUp;
-    boolean isMovingTurretDown;
+    public boolean isMovingRight;
+    public boolean isMovingLeft;
+    public boolean isMovingDown;
+    public boolean isMovingUp;
+    public boolean isMovingTurretUp;
+    public boolean isMovingTurretDown;
 
 
     public Player(Integer[] playerKeys, int playerNumber, Double[] boundaries, boolean isFacingRight) {
@@ -61,6 +61,8 @@ public class Player extends Component {
         rightKey = playerKeys[1];
         upKey = playerKeys[2];
         downKey = playerKeys[3];
+        shootKey = playerKeys[4];
+
 
 
         setDimensions(screenLength / 2, screenHeight - height, length, height);
@@ -81,6 +83,7 @@ public class Player extends Component {
         this.playerNumber = playerNumber;
         isFacingRight = playerNumber == 0;
 
+        newBullets.add(new Bullet("", 0, 0, false));
         String[] imagePaths = {"images/beak.png", "images/beak_stunned.png", "images/enemy_eye.png"};
 
         // Images that have a left and right version
@@ -97,7 +100,7 @@ public class Player extends Component {
     }
 
     public void run() {
-        newBullets = new ArrayList<>();
+        newBullets.clear();
         waitToShootEvent.run(waitToShootEvent.currentTime >= waitToShootEvent.timeNeeded, false);
         stunEvent.run(stunEvent.currentTime >= stunEvent.timeNeeded, false);
 
@@ -140,8 +143,13 @@ public class Player extends Component {
         boolean canShootBullet = waitToShootEvent.hasFinished() && stunEvent.hasFinished();
         if (canShootBullet && keyEvent.getKeyCode() == shootKey) {
             shootLaser();
+            System.out.println("SHOOT LASER");
             waitToShootEvent.start();
         }
+    }
+
+    public boolean hasShootBullet() {
+        return
     }
 
     public void keyReleased(KeyEvent keyEvent) {
@@ -156,14 +164,13 @@ public class Player extends Component {
 
     }
 
-    public void shootLaser() {
-        double turretLeftEdge = isFacingRight ? turret.getRightEdge() : turret.leftEdge - Bullet.getWidth();
-
-        newBullets.add(new Bullet(pathToBulletImage, turretLeftEdge, turret.getVerticalMidpoint() - Bullet.getHeight() / 2, isFacingRight));
+    public Bullet getBullet() {
+        double bulletLeftEdge = isFacingRight ? getRightEdge() : leftEdge - Bullet.getWidth();
+        return new Bullet(pathToBulletImage, bulletLeftEdge, turret.getVerticalMidpoint() - Bullet.getHeight() / 2, isFacingRight);
     }
 
     public void reset() {
-        newBullets = new ArrayList<>();
+        newBullets.clear();
         waitToShootEvent.reset();
     }
 

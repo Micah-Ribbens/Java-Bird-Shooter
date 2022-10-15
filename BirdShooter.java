@@ -77,7 +77,11 @@ public class BirdShooter extends JPanel implements Runnable {
 
         player1.draw(graphics);
         player2.draw(graphics);
-//        enemy.draw(graphics);
+        enemy.draw(graphics);
+
+        if (bullets.size() >= 1) {
+            System.out.println("STOP");
+        }
 
         for (var bullet : bullets) {
             try {
