@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static java.lang.Math.ceil;
 import static src.Constants.*;
 
 
@@ -25,33 +26,29 @@ public class Player extends Component {
     public Component turret;
     public TimedEvent waitToShootEvent;
 
-    public static double length = VelocityCalculator.getMeasurement(screenLength, 10);
+    public static double width = VelocityCalculator.getMeasurement(screenWidth, 10);
     public static double height = VelocityCalculator.getMeasurement(screenHeight, 20);
-    public static double turretLength = VelocityCalculator.getMeasurement(3, screenLength);
+    public static double turretLength = VelocityCalculator.getMeasurement(3, screenWidth);
     public double turretHeight = VelocityCalculator.getMeasurement(3.5, screenHeight);
-    public double playerVelocity = VelocityCalculator.getVelocity(screenLength, 700);
-    public double turretVelocity = VelocityCalculator.getVelocity(screenLength, 250);
+    public double playerVelocity = VelocityCalculator.getVelocity(screenWidth, 700);
+    public double turretVelocity = VelocityCalculator.getVelocity(screenWidth, 250);
+    public double capExtension;
 
     public int rightKey = 0;
     public int leftKey = 0;
     public int upKey = 0;
     public int downKey = 0;
     public int shootKey = 0;
-    public int moveTurretKey = 0;
 
     public TimedEvent stunEvent;
     public int playerNumber = 1;
-    public ArrayList<Bullet> newBullets;
-    public static double capExtension = Math.ceil(21/86 * length);
 
     // Booleans
     public boolean isMovingRight;
     public boolean isMovingLeft;
     public boolean isMovingDown;
     public boolean isMovingUp;
-    public boolean isMovingTurretUp;
-    public boolean isMovingTurretDown;
-
+    public boolean shootBulletKeyIsHeldIn;
 
     public Player(Integer[] playerKeys, int playerNumber, Double[] boundaries, boolean isFacingRight) {
         super("images/player" + playerNumber + "_right.png");
@@ -64,10 +61,10 @@ public class Player extends Component {
         shootKey = playerKeys[4];
 
 
+        capExtension = ceil(21.0 / 86.0 * width);
+        System.out.println(capExtension);
+        setDimensions(screenWidth / 2, screenHeight - height, width, height);
 
-        setDimensions(screenLength / 2, screenHeight - height, length, height);
-
-        newBullets = new ArrayList<>();
         waitToShootEvent = new TimedEvent(.2);
         stunEvent = new TimedEvent(.2);
 
@@ -83,7 +80,6 @@ public class Player extends Component {
         this.playerNumber = playerNumber;
         isFacingRight = playerNumber == 0;
 
-        newBullets.add(new Bullet("", 0, 0, false));
         String[] imagePaths = {"images/beak.png", "images/beak_stunned.png", "images/enemy_eye.png"};
 
         // Images that have a left and right version
@@ -100,15 +96,10 @@ public class Player extends Component {
     }
 
     public void run() {
-        newBullets.clear();
         waitToShootEvent.run(waitToShootEvent.currentTime >= waitToShootEvent.timeNeeded, false);
         stunEvent.run(stunEvent.currentTime >= stunEvent.timeNeeded, false);
 
-        turret.leftEdge = isFacingRight ? getRightEdge() - capExtension : leftEdge + capExtension - turret.width;
-        turret.topEdge = topEdge + verticalDelta;
-
         double playerDistance = VelocityCalculator.calculateDistance(playerVelocity);
-        double turretDistance = VelocityCalculator.calculateDistance(turretVelocity);
 
         leftEdge += isMovingRight ? playerDistance : 0;
         leftEdge -= isMovingLeft ? playerDistance : 0;
@@ -119,9 +110,9 @@ public class Player extends Component {
         leftEdge = getNewCoordinates(minLeftEdge, maxLeftEdge, leftEdge);
         topEdge = getNewCoordinates(minTopEdge, maxTopEdge, topEdge);
 
-        verticalDelta -= isMovingUp ? turretDistance : 0;
-        verticalDelta += isMovingDown ? turretDistance : 0;
-        verticalDelta = getNewCoordinates(30 / 122 * height, height - turret.height, verticalDelta);
+        turret.topEdge = getVerticalMidpoint();
+        turret.leftEdge = isFacingRight ? getRightEdge() - capExtension : leftEdge - turret.width + capExtension;
+
     }
 
     public void keyPressed(KeyEvent keyEvent) {
@@ -130,26 +121,20 @@ public class Player extends Component {
             isMovingRight = keyEvent.getKeyCode() == rightKey;
             isMovingLeft = keyEvent.getKeyCode() == leftKey;
 
-            isMovingTurretDown = keyEvent.getKeyCode() == downKey && keyEvent.getKeyCode() == moveTurretKey;
-            isMovingTurretUp = keyEvent.getKeyCode() == upKey && keyEvent.getKeyCode() == moveTurretKey;
-
-            isMovingDown = keyEvent.getKeyCode() == downKey && keyEvent.getKeyCode() != moveTurretKey;
-            isMovingUp = keyEvent.getKeyCode() == upKey && keyEvent.getKeyCode() != moveTurretKey;
+            isMovingDown = keyEvent.getKeyCode() == downKey;
+            isMovingUp = keyEvent.getKeyCode() == upKey;
 
             isFacingRight = keyEvent.getKeyCode() == rightKey ? true : isFacingRight;
             isFacingRight = keyEvent.getKeyCode() == leftKey ? false : isFacingRight;
-        }
 
-        boolean canShootBullet = waitToShootEvent.hasFinished() && stunEvent.hasFinished();
-        if (canShootBullet && keyEvent.getKeyCode() == shootKey) {
-            shootLaser();
-            System.out.println("SHOOT LASER");
-            waitToShootEvent.start();
+            shootBulletKeyIsHeldIn = keyEvent.getKeyCode() == shootKey;
         }
     }
 
     public boolean hasShootBullet() {
-        return
+        boolean canShootBullet = waitToShootEvent.hasFinished() && stunEvent.hasFinished();
+
+        return canShootBullet && shootBulletKeyIsHeldIn;
     }
 
     public void keyReleased(KeyEvent keyEvent) {
@@ -159,18 +144,18 @@ public class Player extends Component {
         isMovingUp = false;
         isMovingDown = false;
 
-        isMovingTurretUp = false;
-        isMovingTurretDown = false;
+        shootBulletKeyIsHeldIn = false;
 
     }
 
     public Bullet getBullet() {
-        double bulletLeftEdge = isFacingRight ? getRightEdge() : leftEdge - Bullet.getWidth();
+        waitToShootEvent.start();
+
+        double bulletLeftEdge = isFacingRight ? turret.getRightEdge() : turret.leftEdge - Bullet.getWidth();
         return new Bullet(pathToBulletImage, bulletLeftEdge, turret.getVerticalMidpoint() - Bullet.getHeight() / 2, isFacingRight);
     }
 
     public void reset() {
-        newBullets.clear();
         waitToShootEvent.reset();
     }
 
@@ -187,7 +172,7 @@ public class Player extends Component {
         pathToImage = originalPath + direction;
 
         String originalTurretPath = "images/beak";
-        String turretType = !stunEvent.hasFinished() ? "Stunned.png" : ".png";
+        String turretType = !stunEvent.hasFinished() ? "_stunned.png" : ".png";
         turret.pathToImage = originalTurretPath + turretType;
 
         super.draw(graphics);

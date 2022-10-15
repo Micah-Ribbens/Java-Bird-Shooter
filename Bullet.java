@@ -22,10 +22,10 @@ class Bullet extends Component {
     }
 
     public static double getWidth() {
-        return VelocityCalculator.getMeasurement(screenLength, 2);
+        return VelocityCalculator.getMeasurement(screenWidth, 2);
     }
 
     public static double getHeight() {
-        return VelocityCalculator.getMeasurement(screenHeight, 4);
+        return getWidth();
     }
 }

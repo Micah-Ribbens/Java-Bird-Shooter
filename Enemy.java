@@ -9,7 +9,7 @@ import static java.lang.Math.floor;
 
 /** # Movement and Direction */
 class Enemy extends Component {
-    double baseVelocity = VelocityCalculator.getVelocity(screenLength, 70);
+    double baseVelocity = VelocityCalculator.getVelocity(screenWidth, 70);
     double velocity = baseVelocity;
     double velocityIncrease = velocity * .2;
     double totalHitsToChangeDirection = 5;
@@ -17,8 +17,8 @@ class Enemy extends Component {
     boolean isMovingRight = false;
     boolean isMovingDown = true;;
     // Size and Eyes;
-    double length = VelocityCalculator.getMeasurement(screenLength, 11);
-    double height = length;
+    double width = VelocityCalculator.getMeasurement(screenWidth, 11);
+    double height = width;
     Component leftEye = new Component("images/enemy_eye.png");
     Component rightEye = new Component("images/enemy_eye.png");
 
@@ -34,6 +34,8 @@ class Enemy extends Component {
 
         rightEye.width = eyeSize[0];
         rightEye.height = eyeSize[1];
+
+        setDimensions(leftEdge, topEdge, width, height);
     }
 
     public void run() {
@@ -69,8 +71,8 @@ class Enemy extends Component {
     }
 
     public void center() {
-        leftEdge = (screenLength / 2) - (length / 2);
-        topEdge = (screenHeight / 2) - (height / 2);
+        leftEdge = (screenWidth / 2.0) - (width / 2.0);
+        topEdge = (screenHeight / 2.0) - (height / 2.0);
     }
 
     public void draw(Graphics graphics) {
@@ -85,23 +87,23 @@ class Enemy extends Component {
     }
 
     public Double[] getEyeSize() {
-        return new Double[] {4/47 * length, 4/47 * height};
+        return new Double[] {4.0/47.0 * width, 4.0/47.0 * height};
     }
 
     public Double[] getEyeLeftPositions() {
-        return new Double[] {floor(leftEdge + 12 / 47 * length) - 1, floor(leftEdge + 30 / 47 * length) - 1};
+        return new Double[] {floor(leftEdge + 12.0 / 47.0 * width) - 1, floor(leftEdge + 30.0 / 47.0 * width) - 1};
     }
 
     public Double[] getEyeRightPositions() {
-        return new Double[] {ceil(leftEdge + 14/47 * length) + 1, ceil(leftEdge + 32/47 * length) + 1};
+        return new Double[] {ceil(leftEdge + 14.0/47.0 * width) + 1, ceil(leftEdge + 32.0/47.0 * width) + 1};
     }
 
     public Double[] getEyeTopPositions() {
-        return new Double[] {floor(topEdge + 18 / 47 * height) - 1, floor(topEdge + 18 / 47 * height) - 1};
+        return new Double[] {floor(topEdge + 18.0 / 47.0 * height) - 1, floor(topEdge + 18.0 / 47.0 * height) - 1};
     }
 
     public Double[] getEyeBottomPositions() {
-        return new Double[]{ceil(topEdge + 20 / 47 * height) + 1, ceil(topEdge + 20 / 47 * height) + 1};
+        return new Double[]{ceil(topEdge + 20.0 / 47.0 * height) + 1, ceil(topEdge + 20.0 / 47.0 * height) + 1};
     }
 }
 

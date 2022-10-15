@@ -3,6 +3,9 @@ package src;
 import javax.swing.*;
 import java.awt.*;
 
+import static src.Constants.screenHeight;
+import static src.Constants.screenWidth;
+
 public class GameFrame  extends JFrame {
     BirdShooter birdShooter;
 

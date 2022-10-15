@@ -12,22 +12,19 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /** # Player Position and Keys */
 public class BirdShooter extends JPanel implements Runnable {
-    public double middleOfScreen = screenLength / 2;
-    public double totalBuffer = (Player.turretLength - Player.capExtension) * 2 + VelocityCalculator.getMeasurement(screenLength, 2);
+    public double middleOfScreen = screenWidth / 2;
+    public double totalBuffer = VelocityCalculator.getMeasurement(screenWidth, 2);
 
     public double individualBuffer = totalBuffer /2;
 
-    public Integer[][] playersKeys = {{KEY_A,KEY_D,KEY_W,KEY_S,KEY_F,KEY_G},
-                             {KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_QUESTION_MARK,KEY_PERIOD}};
+    public Integer[][] playersKeys = {{KEY_A,KEY_D,KEY_W,KEY_S,KEY_F},
+                             {KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_QUESTION_MARK}};
 
-    public Double[][] playerBoundaries = {{0.0, middleOfScreen -Player.length -individualBuffer, 0.0, screenHeight -Player.height},
-                      {middleOfScreen +individualBuffer,screenLength -Player.length, 0.0, screenHeight -Player.height}};
+    public Double[][] playerBoundaries = {{0.0, middleOfScreen -Player.width -individualBuffer, 0.0, screenHeight -Player.height},
+                      {middleOfScreen +individualBuffer,screenWidth -Player.width, 0.0, screenHeight -Player.height}};
 
     public Player player1 = new Player(playersKeys[0], 1, playerBoundaries[0], true);
     public Player player2 = new Player(playersKeys[1], 2, playerBoundaries[1], false);
@@ -42,12 +39,17 @@ public class BirdShooter extends JPanel implements Runnable {
     public int highScore = 0;
     Thread gameThread;
 
+    public TextField player1ScoreField = new TextField("Player 1 Score: 0");
+    public TextField player2ScoreField = new TextField("Player 2 Score: 0");
+    public int scoreFieldsWidth = screenWidth / 2;
+    public int scoreFieldHeight = (int) VelocityCalculator.getMeasurement(screenWidth, 5);
+
     public BirdShooter() {
         this.setFocusable(true);
 
         this.addKeyListener(new BirdShooter.Keys());
 
-        this.setPreferredSize(new Dimension(screenLength, screenHeight));
+        this.setPreferredSize(new Dimension(screenWidth, screenHeight));
 
 
         gameThread = new Thread(this);
@@ -55,7 +57,14 @@ public class BirdShooter extends JPanel implements Runnable {
         gameThread.start();
 
         centerPlayers();
+        
+        player1ScoreField.setBounds(0, 0, scoreFieldsWidth, scoreFieldHeight);
+        player2ScoreField.setBounds(scoreFieldsWidth, 0, scoreFieldsWidth, scoreFieldHeight);
+//        this.setVisible(true);
+//        this.setLayout(null);
     }
+    
+    
 
     public void run() {
         long startTime = System.nanoTime();
@@ -73,15 +82,13 @@ public class BirdShooter extends JPanel implements Runnable {
 
 
     public void paint(Graphics graphics) {
-        paintBackground(graphics);
-
-        player1.draw(graphics);
-        player2.draw(graphics);
-        enemy.draw(graphics);
-
-        if (bullets.size() >= 1) {
-            System.out.println("STOP");
-        }
+//        paintBackground(graphics);
+//
+//        player1.draw(graphics);
+//        player2.draw(graphics);
+//        enemy.draw(graphics);
+        player1ScoreField.paintAll(graphics);
+        player2ScoreField.paintAll(graphics);
 
         for (var bullet : bullets) {
             try {
@@ -90,12 +97,13 @@ public class BirdShooter extends JPanel implements Runnable {
                 System.out.println("ERROR");
             }
         }
+        Toolkit.getDefaultToolkit().sync();
     }
 
     public void paintBackground(Graphics graphics) {
         try {
             BufferedImage image = ImageIO.read(new File("images/background.png"));
-            graphics.drawImage(image, 0, 0, screenLength, screenHeight, null);
+            graphics.drawImage(image, 0, 0, screenWidth, screenHeight, null);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -103,10 +111,10 @@ public class BirdShooter extends JPanel implements Runnable {
     }
 
     public void runGameCode() {
-//        runCollisions();
+        runCollisions();
         player1.run();
         player2.run();
-//        enemy.run();
+        enemy.run();
 
         for (var bullet : bullets) {
             bullet.run();
@@ -114,6 +122,14 @@ public class BirdShooter extends JPanel implements Runnable {
     }
 
     public void runCollisions() {
+        if (player1.hasShootBullet()) {
+            bullets.add(player1.getBullet());
+        }
+
+        if (player2.hasShootBullet()) {
+            bullets.add(player2.getBullet());
+        }
+
         runBulletCollisions();
         boolean enemyHasHitPlayer1 = CollisionsEngine.isCollision(enemy, player1);
         boolean enemyHasHitPlayer2 = CollisionsEngine.isCollision(enemy, player2);
@@ -122,20 +138,12 @@ public class BirdShooter extends JPanel implements Runnable {
             runPlayerScoring(false);
         }
 
-        if (enemyHasHitPlayer2 || enemy.leftEdge > screenLength){
+        if (enemyHasHitPlayer2 || enemy.leftEdge > screenWidth){
             runPlayerScoring(true);
         }
     }
 
     public void runBulletCollisions() {
-        for (var bullet : player1.newBullets) {
-            bullets.add(bullet);
-        }
-
-        for (var bullet : player2.newBullets) {
-            bullets.add(bullet);
-        }
-
         for (int i = 0; i < bullets.size(); i++) {
             double stunTime = .4;
             Bullet bullet1 = bullets.get(i);
@@ -146,7 +154,9 @@ public class BirdShooter extends JPanel implements Runnable {
 
             if (bulletHasHitPlayer1) {
                 player1.stun(stunTime);
-            } else if (bulletHasHitPlayer2) {
+            }
+
+            else if (bulletHasHitPlayer2) {
                 player2.stun(stunTime);
             }
 
@@ -159,7 +169,7 @@ public class BirdShooter extends JPanel implements Runnable {
                 continue;
             }
 
-            for (int j = i; j < bullets.size() - i; i++){
+            for (int j = i; j < bullets.size() - i; j++){
                 Bullet bullet2 = bullets.get(j);
 
                 if (bullet1 != bullet2 && CollisionsEngine.isCollision(bullet1, bullet2)){
@@ -191,7 +201,7 @@ public class BirdShooter extends JPanel implements Runnable {
 
     public void centerPlayers() {
         player1.leftEdge = 0;
-        player2.leftEdge = screenLength - player2.length;
+        player2.leftEdge = screenWidth - player2.width;
     }
 
     public class Keys extends KeyAdapter {

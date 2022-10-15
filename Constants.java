@@ -25,7 +25,7 @@ public class Constants {
     public static final int[] pleasing_green = {51, 178, 73};
     public static final int[] backgroundColor = {200, 200, 200};
 
-    public static final int screenLength = 1300;
+    public static final int screenWidth = 1300;
     public static final int screenHeight = 650;
 
     public static final int KEY_A = KeyEvent.VK_A;
@@ -59,7 +59,7 @@ public class Constants {
     public static final int KEY_UP = KeyEvent.VK_UP;
     public static final int KEY_LEFT = KeyEvent.VK_LEFT;
     public static final int KEY_PERIOD = KeyEvent.VK_PERIOD;
-    public static final int KEY_QUESTION_MARK = KeyEvent.VK_BACK_SLASH;
+    public static final int KEY_QUESTION_MARK = 47;
 
 
 
