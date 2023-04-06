@@ -7,12 +7,12 @@ import static src.Constants.screenHeight;
 import static src.Constants.screenWidth;
 
 public class GameFrame  extends JFrame {
-    BirdShooter birdShooter;
+    MainScreen mainScreen;
 
     public GameFrame() {
-        birdShooter = new BirdShooter();
+        mainScreen = new MainScreen();
 
-        this.add(birdShooter);
+        this.add(mainScreen);
 
         this.setTitle("Pong Game");
 
