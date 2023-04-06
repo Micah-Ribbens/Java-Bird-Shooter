@@ -59,6 +59,7 @@ public class Constants {
     public static final int KEY_UP = KeyEvent.VK_UP;
     public static final int KEY_LEFT = KeyEvent.VK_LEFT;
     public static final int KEY_PERIOD = KeyEvent.VK_PERIOD;
+    public static final int KEY_SPACE = KeyEvent.VK_SPACE;
     public static final int KEY_QUESTION_MARK = 47;
 
 
