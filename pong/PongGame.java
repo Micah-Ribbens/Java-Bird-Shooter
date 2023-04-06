@@ -1,7 +1,7 @@
-package pong;
+package src.pong;
 
 public class PongGame {
     public static void main(String[] args) {
-        GameFrame frame = new GameFrame();
+//        pong.GameFrame frame = new pong.GameFrame();
     }
 }

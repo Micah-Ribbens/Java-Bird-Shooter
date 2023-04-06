@@ -18,7 +18,7 @@ public class GameFrame  extends JFrame {
 
         this.setResizable(false);
 
-        this.setBackground(Color.black);
+        this.setBackground(Color.blue);
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

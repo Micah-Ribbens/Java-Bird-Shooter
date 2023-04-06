@@ -55,4 +55,5 @@ public class Component {
         this.width = width;
         this.height = height;
     }
+
 }

@@ -71,22 +71,23 @@ public class BirdShooter extends JPanel implements Runnable {
 
         while (true) {
             runGameCode();
-            repaint();
+            this.repaint();
 
             long endTime = System.nanoTime();
             VelocityCalculator.time = (endTime - startTime) / Math.pow(10, 9);
+//            System.out.println(VelocityCalculator.time + " " + (endTime - startTime));
             startTime = endTime;
+
 
         }
     }
 
 
     public void paint(Graphics graphics) {
-//        paintBackground(graphics);
-//
-//        player1.draw(graphics);
-//        player2.draw(graphics);
-//        enemy.draw(graphics);
+        paintBackground(graphics);
+        player1.draw(graphics);
+        player2.draw(graphics);
+        enemy.draw(graphics);
         player1ScoreField.paintAll(graphics);
         player2ScoreField.paintAll(graphics);
 
