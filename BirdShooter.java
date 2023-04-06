@@ -134,13 +134,13 @@ public class BirdShooter extends JPanel implements Runnable {
         boolean enemyHasHitPlayer1 = CollisionsEngine.isCollision(enemy, player1);
         boolean enemyHasHitPlayer2 = CollisionsEngine.isCollision(enemy, player2);
 
-//        if (enemyHasHitPlayer1 || enemy.getRightEdge() < 0){
-//            runPlayerScoring(false);
-//        }
-//
-//        if (enemyHasHitPlayer2 || enemy.leftEdge > screenWidth){
-//            runPlayerScoring(true);
-//        }
+        if (enemyHasHitPlayer1 || enemy.getRightEdge() < 0){
+            runPlayerScoring(false);
+        }
+
+        if (enemyHasHitPlayer2 || enemy.leftEdge > screenWidth){
+            runPlayerScoring(true);
+        }
     }
 
     public void runBulletCollisions() {
