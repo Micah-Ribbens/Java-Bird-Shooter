@@ -31,7 +31,7 @@ public final class KeyBoardListener implements KeyEventDispatcher {
      */
     public static void initialize() {
         keyCodes = new ArrayList<>();
-        keyValues = new ArrayList<>();
+//        keyValues = new ArrayList<>();
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyBoardListener());
     }
 
@@ -43,13 +43,27 @@ public final class KeyBoardListener implements KeyEventDispatcher {
      */
     @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
-        if (keyCodes.contains(e.getKeyCode())) {
-            setValue(e);
-        } else {
+//        if (keyCodes.contains(e.getKeyCode())) {
+//            setValue(e);
+//        } else {
+//            keyCodes.add(e.getKeyCode());
+//            keyValues.add(true);
+//        }
+
+        if (e.getID() == KeyEvent.KEY_PRESSED) {
             keyCodes.add(e.getKeyCode());
-            keyValues.add(true);
+            System.out.println("Key Pressed: " + e.getKeyCode());
         }
 
+        else if (e.getID() == KeyEvent.KEY_RELEASED) {
+            System.out.println("Key Released: " + e.getKeyCode());
+            try {
+                keyCodes.remove(keyCodes.indexOf(e.getKeyCode()));
+            } catch (Exception error) {
+                System.out.println("Error: " + e.getKeyCode());
+                // Do nothing
+            }
+        }
         return false;
     }
 
@@ -58,14 +72,14 @@ public final class KeyBoardListener implements KeyEventDispatcher {
      *
      * @param e The KeyEvent containing the info to set the key value
      */
-    private static void setValue(KeyEvent e) {
-        int index = indexOf(e.getKeyCode());
-        if (e.getID() == KeyEvent.KEY_PRESSED) {
-            keyValues.set(index, true);
-        } else if (e.getID() == KeyEvent.KEY_RELEASED) {
-            keyValues.set(index, false);
-        }
-    }
+//    private static void setValue(KeyEvent e) {
+//        int index = indexOf(e.getKeyCode());
+//        if (e.getID() == KeyEvent.KEY_PRESSED) {
+//            keyValues.set(index, true);
+//        } else if (e.getID() == KeyEvent.KEY_RELEASED) {
+//            keyValues.set(index, false);
+//        }
+//    }
 
     /**
      * A method to get the index of the keyCode in the keyCodes ArrayList
@@ -73,15 +87,15 @@ public final class KeyBoardListener implements KeyEventDispatcher {
      * @param keyCode The keyCode to be found
      * @return The index of the keyCode value in teh keyCodes ArrayList
      */
-    private static int indexOf(int keyCode) {
-        for (int i = 0; i < keyCodes.size(); i++) {
-            if (keyCodes.get(i) == keyCode) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
+//    private static int indexOf(int keyCode) {
+//        for (int i = 0; i < keyCodes.size(); i++) {
+//            if (keyCodes.get(i) == keyCode) {
+//                return i;
+//            }
+//        }
+//
+//        return -1;
+//    }
 
     /**
      * A method to get the value of a key
@@ -90,11 +104,12 @@ public final class KeyBoardListener implements KeyEventDispatcher {
      * @return The value of the key specified by keyCode
      */
     public static boolean get(int keyCode) {
-        if (keyCodes.contains(keyCode)) {
-            return keyValues.get(indexOf(keyCode));
-        } else {
-            return false;
-        }
+//        if (keyCodes.contains(keyCode)) {
+//            return keyValues.get(indexOf(keyCode));
+//        } else {
+//            return false;
+//        }
+//    }
+        return keyCodes.contains(keyCode);
     }
-
 }

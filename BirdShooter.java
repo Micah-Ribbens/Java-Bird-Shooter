@@ -45,9 +45,8 @@ public class BirdShooter extends JPanel implements Runnable {
     public int scoreFieldHeight = (int) VelocityCalculator.getMeasurement(screenWidth, 5);
 
     public BirdShooter() {
+        KeyBoardListener.initialize();
         this.setFocusable(true);
-
-        this.addKeyListener(new BirdShooter.Keys());
 
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
 
@@ -135,13 +134,13 @@ public class BirdShooter extends JPanel implements Runnable {
         boolean enemyHasHitPlayer1 = CollisionsEngine.isCollision(enemy, player1);
         boolean enemyHasHitPlayer2 = CollisionsEngine.isCollision(enemy, player2);
 
-        if (enemyHasHitPlayer1 || enemy.getRightEdge() < 0){
-            runPlayerScoring(false);
-        }
-
-        if (enemyHasHitPlayer2 || enemy.leftEdge > screenWidth){
-            runPlayerScoring(true);
-        }
+//        if (enemyHasHitPlayer1 || enemy.getRightEdge() < 0){
+//            runPlayerScoring(false);
+//        }
+//
+//        if (enemyHasHitPlayer2 || enemy.leftEdge > screenWidth){
+//            runPlayerScoring(true);
+//        }
     }
 
     public void runBulletCollisions() {
@@ -203,19 +202,6 @@ public class BirdShooter extends JPanel implements Runnable {
     public void centerPlayers() {
         player1.leftEdge = 0;
         player2.leftEdge = screenWidth - player2.width;
-    }
-
-    public class Keys extends KeyAdapter {
-        public void keyPressed(KeyEvent keyEvent) {
-            player1.keyPressed(keyEvent);
-            player2.keyPressed(keyEvent);
-
-        }
-        public void keyReleased(KeyEvent keyEvent) {
-            player1.keyReleased(keyEvent);
-            player2.keyReleased(keyEvent);
-        }
-
     }
 }
 

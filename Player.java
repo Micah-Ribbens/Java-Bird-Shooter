@@ -43,13 +43,6 @@ public class Player extends Component {
     public TimedEvent stunEvent;
     public int playerNumber = 1;
 
-    // Booleans
-    public boolean isMovingRight;
-    public boolean isMovingLeft;
-    public boolean isMovingDown;
-    public boolean isMovingUp;
-    public boolean shootBulletKeyIsHeldIn;
-
     public Player(Integer[] playerKeys, int playerNumber, Double[] boundaries, boolean isFacingRight) {
         super("images/player" + playerNumber + "_right.png");
         pathToBulletImage = "images/player" + playerNumber + "_bullet.png";
@@ -101,11 +94,11 @@ public class Player extends Component {
 
         double playerDistance = VelocityCalculator.calculateDistance(playerVelocity);
 
-        leftEdge += isMovingRight ? playerDistance : 0;
-        leftEdge -= isMovingLeft ? playerDistance : 0;
+        leftEdge += KeyBoardListener.get(rightKey) ? playerDistance : 0;
+        leftEdge -= KeyBoardListener.get(leftKey) ? playerDistance : 0;
 
-        topEdge -= isMovingUp ? playerDistance : 0;
-        topEdge += isMovingDown ? playerDistance : 0;
+        topEdge -= KeyBoardListener.get(upKey) ? playerDistance : 0;
+        topEdge += KeyBoardListener.get(downKey) ? playerDistance : 0;
 
         leftEdge = getNewCoordinates(minLeftEdge, maxLeftEdge, leftEdge);
         topEdge = getNewCoordinates(minTopEdge, maxTopEdge, topEdge);
@@ -113,39 +106,15 @@ public class Player extends Component {
         turret.topEdge = getVerticalMidpoint();
         turret.leftEdge = isFacingRight ? getRightEdge() - capExtension : leftEdge - turret.width + capExtension;
 
-    }
+        isFacingRight = KeyBoardListener.get(rightKey) ? true : isFacingRight;
+        isFacingRight = KeyBoardListener.get(leftKey) ? false : isFacingRight;
 
-    public void keyPressed(KeyEvent keyEvent) {
-        if (stunEvent.hasFinished()) {
-
-            isMovingRight = keyEvent.getKeyCode() == rightKey;
-            isMovingLeft = keyEvent.getKeyCode() == leftKey;
-
-            isMovingDown = keyEvent.getKeyCode() == downKey;
-            isMovingUp = keyEvent.getKeyCode() == upKey;
-
-            isFacingRight = keyEvent.getKeyCode() == rightKey ? true : isFacingRight;
-            isFacingRight = keyEvent.getKeyCode() == leftKey ? false : isFacingRight;
-
-            shootBulletKeyIsHeldIn = keyEvent.getKeyCode() == shootKey;
-        }
     }
 
     public boolean hasShootBullet() {
         boolean canShootBullet = waitToShootEvent.hasFinished() && stunEvent.hasFinished();
 
-        return canShootBullet && shootBulletKeyIsHeldIn;
-    }
-
-    public void keyReleased(KeyEvent keyEvent) {
-        isMovingRight = false;
-        isMovingLeft = false;
-
-        isMovingUp = false;
-        isMovingDown = false;
-
-        shootBulletKeyIsHeldIn = false;
-
+        return canShootBullet && KeyBoardListener.get(shootKey);
     }
 
     public Bullet getBullet() {
